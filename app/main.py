@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from app.database import engine
+from app.database import SessionLocal, engine
+from app import models
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -22,4 +26,20 @@ def db_health_check():
             "database": "failed",
             "error": str(e)
         }
-        
+
+
+@app.get("/health/models")
+def model_health_check():
+    return {
+        "tables_expected": ["products", "orders", "order_items"]
+    }
+
+
+@app.get("/debug/products-count")
+def debug_products_count():
+    db: Session = SessionLocal()
+    try:
+        count = db.query(models.Product).count()
+        return {"products_count": count}
+    finally:
+        db.close()
