@@ -36,7 +36,7 @@ GET /products
 ]
 ```
 
-## Get one product
+## Get specific product
 ### Example request
 ```
 GET /products/1
