@@ -1,7 +1,7 @@
 # Commands
 ## Start Site
 ```
-Start Site: uvicorn app.main:app --reload
+uvicorn app.main:app --reload
 ```
 ## Get all products
 ### Example request
