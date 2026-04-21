@@ -3,6 +3,10 @@
 ```
 uvicorn app.main:app --reload
 ```
+## Site URL
+```
+http://127.0.0.1:8000/static/index.html
+```
 ## Get all products
 ### Example request
 ```
