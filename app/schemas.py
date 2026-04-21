@@ -33,7 +33,7 @@ class OrderItemCreate(BaseModel):
 class OrderCreate(BaseModel):
     customer_name: str
     customer_email: EmailStr
-    items: List[OrderItemCreate]
+    items: List[OrderItemCreate] = Field(..., min_length=1)
 
 
 class OrderItemResponse(BaseModel):

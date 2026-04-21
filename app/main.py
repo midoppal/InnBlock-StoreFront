@@ -1,15 +1,28 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.database import engine
 from app import models
-from app.routes import products
+from app.routes import orders, products
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(products.router)
+app.include_router(orders.router)
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
 @app.get("/")
