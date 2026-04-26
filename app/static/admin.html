@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Products</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Store Admin</h1>
+      <nav>
+        <a href="/static/index.html">Store</a>
+        <a href="/static/products.html">Products</a>
+        <a href="/static/admin.html">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Create Product</h2>
+
+    <form id="admin-create-product-form" class="checkout-form">
+      <label>Name</label>
+      <input id="admin-name" type="text" required />
+
+      <label>Description</label>
+      <input id="admin-description" type="text" />
+
+      <label>Price</label>
+      <input id="admin-price" type="number" step="0.01" min="0" required />
+
+      <label>Stock</label>
+      <input id="admin-stock" type="number" min="0" required />
+
+      <label>Image URL</label>
+      <input id="admin-image-url" type="text" />
+
+      <button class="button" type="submit">Create Product</button>
+    </form>
+
+    <div id="admin-message"></div>
+
+    <h2>Manage Products</h2>
+    <div id="admin-products-container"></div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

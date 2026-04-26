@@ -17,6 +17,17 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     pass
 
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[Decimal] = None
+    stock: Optional[int] = None
+    image_url: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class ProductRestock(BaseModel):
+    quantity: int = Field(..., gt=0)
 
 class ProductResponse(ProductBase):
     id: int
