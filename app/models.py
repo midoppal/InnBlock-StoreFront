@@ -18,6 +18,26 @@ class Product(Base):
 
     order_items = relationship("OrderItem", back_populates="product")
 
+class Cart(Base):
+    __tablename__ = "carts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
+
+
+class CartItem(Base):
+    __tablename__ = "cart_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    cart_id = Column(Integer, ForeignKey("carts.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    quantity = Column(Integer, nullable=False)
+
+    cart = relationship("Cart", back_populates="items")
+    product = relationship("Product")
+    
 
 class Order(Base):
     __tablename__ = "orders"
@@ -25,6 +45,15 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_name = Column(String(255), nullable=False)
     customer_email = Column(String(255), nullable=False)
+    customer_phone = Column(String(50), nullable=True)
+
+    shipping_address_line1 = Column(String(255), nullable=False)
+    shipping_address_line2 = Column(String(255), nullable=True)
+    shipping_city = Column(String(100), nullable=False)
+    shipping_state = Column(String(100), nullable=False)
+    shipping_zip = Column(String(30), nullable=False)
+    shipping_country = Column(String(100), nullable=False, default="United States")
+
     total_amount = Column(Numeric(10, 2), nullable=False, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

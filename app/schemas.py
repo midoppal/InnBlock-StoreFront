@@ -35,6 +35,30 @@ class ProductResponse(ProductBase):
     class Config:
         from_attributes = True
 
+class CartItemAdd(BaseModel):
+    product_id: int
+    quantity: int = Field(..., gt=0)
+
+
+class CartItemUpdate(BaseModel):
+    quantity: int = Field(..., ge=0)
+
+
+class CartItemResponse(BaseModel):
+    id: int
+    product_id: int
+    name: str
+    price: Decimal
+    image_url: Optional[str] = None
+    stock: int
+    quantity: int
+    item_total: Decimal
+
+
+class CartResponse(BaseModel):
+    id: int
+    items: List[CartItemResponse]
+    total_amount: Decimal
 
 class OrderItemCreate(BaseModel):
     product_id: int
@@ -44,9 +68,31 @@ class OrderItemCreate(BaseModel):
 class OrderCreate(BaseModel):
     customer_name: str
     customer_email: EmailStr
+    customer_phone: Optional[str] = None
+
+    shipping_address_line1: str
+    shipping_address_line2: Optional[str] = None
+    shipping_city: str
+    shipping_state: str
+    shipping_zip: str
+    shipping_country: str = "United States"
+
     items: List[OrderItemCreate] = Field(..., min_length=1)
+ 
+class OrderCreateFromCart(BaseModel):
+    cart_id: int
 
+    customer_name: str
+    customer_email: EmailStr
+    customer_phone: Optional[str] = None
 
+    shipping_address_line1: str
+    shipping_address_line2: Optional[str] = None
+    shipping_city: str
+    shipping_state: str
+    shipping_zip: str
+    shipping_country: str = "United States"
+    
 class OrderItemResponse(BaseModel):
     id: int
     product_id: int
@@ -61,6 +107,15 @@ class OrderResponse(BaseModel):
     id: int
     customer_name: str
     customer_email: EmailStr
+    customer_phone: Optional[str] = None
+
+    shipping_address_line1: Optional[str] = None
+    shipping_address_line2: Optional[str] = None
+    shipping_city: Optional[str] = None
+    shipping_state: Optional[str] = None
+    shipping_zip: Optional[str] = None
+    shipping_country: Optional[str] = None
+
     total_amount: Decimal
     created_at: datetime
     items: List[OrderItemResponse]

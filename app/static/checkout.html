@@ -25,10 +25,31 @@
 
     <form id="checkout-form" class="checkout-form">
       <label for="customer-name">Full Name</label>
-      <input type="text" id="customer-name" name="customer-name" required />
+      <input type="text" id="customer-name" required />
 
       <label for="customer-email">Email</label>
-      <input type="email" id="customer-email" name="customer-email" required />
+      <input type="email" id="customer-email" required />
+
+      <label for="customer-phone">Phone</label>
+      <input type="text" id="customer-phone" />
+
+      <label for="shipping-address-line1">Address Line 1</label>
+      <input type="text" id="shipping-address-line1" required />
+
+      <label for="shipping-address-line2">Address Line 2</label>
+      <input type="text" id="shipping-address-line2" />
+
+      <label for="shipping-city">City</label>
+      <input type="text" id="shipping-city" required />
+
+      <label for="shipping-state">State</label>
+      <input type="text" id="shipping-state" required />
+
+      <label for="shipping-zip">ZIP Code</label>
+      <input type="text" id="shipping-zip" required />
+
+      <label for="shipping-country">Country</label>
+      <input type="text" id="shipping-country" value="United States" required />
 
       <button type="submit" class="button">Place Order</button>
     </form>
