@@ -3,7 +3,8 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 from app.models import Cart, CartItem, Order, OrderItem, Product
 from app.schemas import OrderCreate
-
+from app.models import User
+from app.security import hash_password
 
 def get_products(db: Session):
     return (
@@ -289,6 +290,8 @@ def create_order(db: Session, order_data: OrderCreate):
         shipping_zip=order_data.shipping_zip,
         shipping_country=order_data.shipping_country,
         total_amount=total_amount,
+        status="pending",
+        payment_status="unpaid",
     )
     db.add(order)
     db.flush()
@@ -352,6 +355,8 @@ def create_order_from_cart(db: Session, order_data):
         shipping_zip=order_data.shipping_zip,
         shipping_country=order_data.shipping_country,
         total_amount=total_amount,
+        status="pending",
+        payment_status="unpaid",
     )
 
     db.add(order)
@@ -390,3 +395,96 @@ def get_order_by_id(db: Session, order_id: int):
         .filter(Order.id == order_id)
         .first()
     )
+    
+ALLOWED_ORDER_STATUSES = {"pending", "paid", "shipped", "cancelled", "completed"}
+
+
+def update_order_status(db: Session, order_id: int, status: str):
+    if status not in ALLOWED_ORDER_STATUSES:
+        raise ValueError(
+            f"Invalid status. Allowed statuses: {', '.join(sorted(ALLOWED_ORDER_STATUSES))}"
+        )
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if order is None:
+        return None
+
+    previous_status = order.status
+    if previous_status == "cancelled" and status == "shipped":
+        raise ValueError("Cannot ship a cancelled order")
+    
+    if status == "shipped" and order.payment_status != "paid":
+        raise ValueError("Cannot ship an unpaid order")
+
+    if previous_status == "cancelled" and status == "cancelled":
+        return order
+
+    if previous_status != "cancelled" and status == "cancelled":
+        for item in order.items:
+            product = db.query(Product).filter(Product.id == item.product_id).first()
+
+            if product:
+                product.stock += item.quantity
+
+    if previous_status == "cancelled" and status != "cancelled":
+        for item in order.items:
+            product = db.query(Product).filter(Product.id == item.product_id).first()
+
+            if product is None:
+                raise ValueError(f"Product with id {item.product_id} not found")
+
+            if item.quantity > product.stock:
+                raise ValueError(
+                    f"Cannot restore order because product '{product.name}' only has {product.stock} in stock"
+                )
+
+            product.stock -= item.quantity
+
+    order.status = status
+    db.commit()
+    db.refresh(order)
+
+    return order
+
+ALLOWED_PAYMENT_STATUSES = {"unpaid", "paid", "refunded"}
+
+
+def update_order_payment_status(db: Session, order_id: int, payment_status: str):
+    if payment_status not in ALLOWED_PAYMENT_STATUSES:
+        raise ValueError(
+            f"Invalid payment status. Allowed statuses: {', '.join(sorted(ALLOWED_PAYMENT_STATUSES))}"
+        )
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+
+    if order is None:
+        return None
+
+    order.payment_status = payment_status
+    db.commit()
+    db.refresh(order)
+
+    return order
+
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
+
+
+def create_user(db: Session, user_data):
+    existing_user = get_user_by_email(db, user_data.email)
+
+    if existing_user:
+        raise ValueError("A user with this email already exists")
+
+    user = User(
+        email=user_data.email,
+        full_name=user_data.full_name,
+        hashed_password=hash_password(user_data.password),
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return user

@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 from app.database import engine
 from app import models
-from app.routes import cart, orders, products
+from app.routes import cart, orders, products, users
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -22,6 +22,7 @@ app.add_middleware(
 app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(cart.router)
+app.include_router(users.router)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

@@ -4,7 +4,6 @@ from sqlalchemy.sql import func
 
 from app.database import Base
 
-
 class Product(Base):
     __tablename__ = "products"
 
@@ -55,6 +54,8 @@ class Order(Base):
     shipping_country = Column(String(100), nullable=False, default="United States")
 
     total_amount = Column(Numeric(10, 2), nullable=False, default=0)
+    status = Column(String(50), nullable=False, default="pending")
+    payment_status = Column(String(50), nullable=False, default="unpaid")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
@@ -70,4 +71,16 @@ class OrderItem(Base):
     price_at_purchase = Column(Numeric(10, 2), nullable=False)
 
     order = relationship("Order", back_populates="items")
-    product = relationship("Product", back_populates="order_items")                  
+    product = relationship("Product", back_populates="order_items")          
+    
+        
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    full_name = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_admin = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

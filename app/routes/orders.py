@@ -42,3 +42,41 @@ def create_new_order_from_cart(
         return order
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.patch("/{order_id}/status", response_model=schemas.OrderResponse)
+def update_order_status(
+    order_id: int,
+    status_data: schemas.OrderStatusUpdate,
+    db: Session = Depends(get_db),
+):
+    try:
+        order = crud.update_order_status(db, order_id, status_data.status)
+
+        if order is None:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        return order
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@router.patch("/{order_id}/payment-status", response_model=schemas.OrderResponse)
+def update_order_payment_status(
+    order_id: int,
+    status_data: schemas.OrderPaymentStatusUpdate,
+    db: Session = Depends(get_db),
+):
+    try:
+        order = crud.update_order_payment_status(
+            db,
+            order_id,
+            status_data.payment_status,
+        )
+
+        if order is None:
+            raise HTTPException(status_code=404, detail="Order not found")
+
+        return order
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

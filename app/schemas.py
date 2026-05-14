@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
-
+################################################################################################################################################
 class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -34,7 +34,7 @@ class ProductResponse(ProductBase):
 
     class Config:
         from_attributes = True
-
+################################################################################################################################################
 class CartItemAdd(BaseModel):
     product_id: int
     quantity: int = Field(..., gt=0)
@@ -60,6 +60,7 @@ class CartResponse(BaseModel):
     items: List[CartItemResponse]
     total_amount: Decimal
 
+################################################################################################################################################
 class OrderItemCreate(BaseModel):
     product_id: int
     quantity: int = Field(..., gt=0)
@@ -117,8 +118,35 @@ class OrderResponse(BaseModel):
     shipping_country: Optional[str] = None
 
     total_amount: Decimal
+    status: str
+    payment_status: str
     created_at: datetime
     items: List[OrderItemResponse]
+    
+
+    class Config:
+        from_attributes = True
+        
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+class OrderPaymentStatusUpdate(BaseModel):
+    payment_status: str
+    
+################################################################################################################################################
+class UserCreate(BaseModel):
+    email: EmailStr
+    full_name: str
+    password: str = Field(..., min_length=8)
+
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: str
+    is_active: bool
+    is_admin: bool
+    created_at: datetime
 
     class Config:
         from_attributes = True

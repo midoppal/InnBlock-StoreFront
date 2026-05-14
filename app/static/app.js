@@ -607,6 +607,7 @@ async function adminLoadOrders() {
         <p>Customer: ${order.customer_name}</p>
         <p>Email: ${order.customer_email}</p>
         <p>Phone: ${order.customer_phone || "N/A"}</p>
+
         <p>
           Shipping:
           ${order.shipping_address_line1 || ""}
@@ -616,10 +617,48 @@ async function adminLoadOrders() {
           ${order.shipping_zip || ""}
           ${order.shipping_country || ""}
         </p>
+
         <p>Total: $${Number(order.total_amount).toFixed(2)}</p>
+        <p>Fulfillment Status: <strong>${order.status}</strong></p>
+        <p>Payment Status: <strong>${order.payment_status}</strong></p>
         <p>Created: ${new Date(order.created_at).toLocaleString()}</p>
+
         <ul>${itemsHtml}</ul>
+
+        <div class="admin-inline-controls">
+          <select class="admin-order-status-select">
+            <option value="pending">pending</option>
+            <option value="processing">processing</option>
+            <option value="shipped">shipped</option>
+            <option value="cancelled">cancelled</option>
+            <option value="completed">completed</option>
+          </select>
+          <button class="button admin-order-status-button">Update Order Status</button>
+        </div>
+
+        <div class="admin-inline-controls">
+          <select class="admin-payment-status-select">
+            <option value="unpaid">unpaid</option>
+            <option value="paid">paid</option>
+            <option value="refunded">refunded</option>
+          </select>
+          <button class="button admin-payment-status-button">Update Payment</button>
+        </div>
       `;
+
+      const statusSelect = card.querySelector(".admin-order-status-select");
+      statusSelect.value = order.status;
+
+      card.querySelector(".admin-order-status-button").addEventListener("click", async () => {
+        await adminUpdateOrderStatus(order.id, statusSelect.value);
+      });
+
+      const paymentStatusSelect = card.querySelector(".admin-payment-status-select");
+      paymentStatusSelect.value = order.payment_status;
+
+      card.querySelector(".admin-payment-status-button").addEventListener("click", async () => {
+        await adminUpdateOrderPaymentStatus(order.id, paymentStatusSelect.value);
+      });
 
       container.appendChild(card);
     });
@@ -628,6 +667,44 @@ async function adminLoadOrders() {
     console.error("Admin load orders error:", error);
     container.innerHTML = "<p>Failed to load orders.</p>";
   }
+}
+
+async function adminUpdateOrderStatus(orderId, status) {
+  const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ status })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.detail || "Failed to update order status.");
+    return;
+  }
+
+  await adminLoadOrders();
+}
+
+async function adminUpdateOrderPaymentStatus(orderId, paymentStatus) {
+  const response = await fetch(`${API_BASE_URL}/orders/${orderId}/payment-status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ payment_status: paymentStatus })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.detail || "Failed to update payment status.");
+    return;
+  }
+
+  await adminLoadOrders();
 }
 
 function initializeAdminPage() {
