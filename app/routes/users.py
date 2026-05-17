@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from app import crud, schemas
 from app.database import get_db
-from app.security import create_access_token
+from app.security import create_access_token, get_current_user
+from app.models import User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -36,3 +37,7 @@ def login_user(user_data: schemas.UserLogin, db: Session = Depends(get_db)):
 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@router.get("/me", response_model=schemas.UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
