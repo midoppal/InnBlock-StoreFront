@@ -101,8 +101,8 @@ def activate_product(db: Session, product_id: int):
 
     return product
 
-def create_cart(db: Session):
-    cart = Cart()
+def create_cart(db: Session, user_id: int | None = None):
+    cart = Cart(user_id=user_id)
     db.add(cart)
     db.commit()
     db.refresh(cart)
@@ -135,6 +135,7 @@ def build_cart_response(cart: Cart):
 
     return {
         "id": cart.id,
+        "user_id": cart.user_id,
         "items": items,
         "total_amount": total_amount,
     }
@@ -345,6 +346,7 @@ def create_order_from_cart(db: Session, order_data):
         })
 
     order = Order(
+        user_id=cart.user_id,
         customer_name=order_data.customer_name,
         customer_email=order_data.customer_email,
         customer_phone=order_data.customer_phone,

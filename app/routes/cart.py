@@ -4,12 +4,19 @@ from sqlalchemy.orm import Session
 from app import crud, schemas
 from app.database import get_db
 
+from app.security import get_optional_current_user
+from app.models import User
+
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 
 @router.post("", response_model=schemas.CartResponse)
-def create_cart(db: Session = Depends(get_db)):
-    cart = crud.create_cart(db)
+def create_cart(
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
+):
+    user_id = current_user.id if current_user else None
+    cart = crud.create_cart(db, user_id=user_id)
     return crud.build_cart_response(cart)
 
 

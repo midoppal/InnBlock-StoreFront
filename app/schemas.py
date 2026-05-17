@@ -57,8 +57,10 @@ class CartItemResponse(BaseModel):
 
 class CartResponse(BaseModel):
     id: int
+    user_id: Optional[int] = None
     items: List[CartItemResponse]
     total_amount: Decimal
+    
 
 ################################################################################################################################################
 class OrderItemCreate(BaseModel):
@@ -82,6 +84,7 @@ class OrderCreate(BaseModel):
  
 class OrderCreateFromCart(BaseModel):
     cart_id: int
+    user_id: Optional[int] = None
 
     customer_name: str
     customer_email: EmailStr
@@ -106,6 +109,7 @@ class OrderItemResponse(BaseModel):
 
 class OrderResponse(BaseModel):
     id: int
+    user_id: Optional[int] = None
     customer_name: str
     customer_email: EmailStr
     customer_phone: Optional[str] = None

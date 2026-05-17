@@ -21,8 +21,10 @@ class Cart(Base):
     __tablename__ = "carts"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+    user = relationship("User")
     items = relationship("CartItem", back_populates="cart", cascade="all, delete-orphan")
 
 
@@ -30,6 +32,7 @@ class CartItem(Base):
     __tablename__ = "cart_items"
 
     id = Column(Integer, primary_key=True, index=True)
+    
     cart_id = Column(Integer, ForeignKey("carts.id", ondelete="CASCADE"), nullable=False)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
@@ -42,6 +45,8 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    
     customer_name = Column(String(255), nullable=False)
     customer_email = Column(String(255), nullable=False)
     customer_phone = Column(String(50), nullable=True)
@@ -58,6 +63,7 @@ class Order(Base):
     payment_status = Column(String(50), nullable=False, default="unpaid")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
+    user = relationship("User")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 
